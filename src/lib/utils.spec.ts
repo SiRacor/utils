@@ -107,6 +107,16 @@ describe('NullSafe', () => {
     assertFalse(nsce(a, b, null));
   });
 
+  it('nsce with date', () => {
+
+    const a = new Date();
+    const b = new Date('gg');
+
+    assertTrue(nsce(a));
+    assertFalse(nsce(a, b));
+    assertFalse(nsce(a, b, null));
+  });
+
   it('nsce with string', () => {
 
     let a = new String('');
@@ -138,7 +148,7 @@ describe('NullSafe', () => {
 
   it('nvl with String', () => {
 
-    let a = null;
+    let a: string | null = null;
     const b = 'f';
 
     assertTrue(nvl(a, b) == b);
@@ -164,7 +174,7 @@ describe('NullSafe', () => {
 
   it('nvls with String', () => {
 
-    let a = null;
+    let a: string | null = null;
     const b = () => 'f';
 
     assertEq(nvls(a, b), b());
@@ -224,6 +234,23 @@ describe('NullSafe', () => {
 
     b = true;
     c = true;
+
+    assertFalse(emp(b));
+    assertFalse(emp(c));
+  });
+
+  it('emp with date', () => {
+
+    const a : Date | null = null;
+    let b = new Date();
+    let c = new Date('ff');
+
+    assertTrue(emp(a));
+    assertFalse(emp(b));
+    assertTrue(emp(c));
+
+    b = new Date('2000-01-01');
+    c = new Date('2000-01-01');
 
     assertFalse(emp(b));
     assertFalse(emp(c));

@@ -75,8 +75,10 @@ export class NullSafe {
         ret = a.trim().length === 0;
       } else if (typeof a === 'boolean') {
         ret = !(new Boolean(a)).valueOf();
-      }  else if (a instanceof Boolean) {
+      } else if (a instanceof Boolean) {
         ret = !a.valueOf();
+      } else if (a instanceof Date) {
+        ret = isNaN(new Number(a).valueOf());
       } else if (Array.isArray(a)) {
         ret = a.length === 0;
       } else if (a.size) {
