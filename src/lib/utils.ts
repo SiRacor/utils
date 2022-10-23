@@ -269,8 +269,8 @@ export class Stream {
     return buffer ? new Set(buffer) : null;
   }
 
-  public static toArray<T, R>(list: T[] | Iterable<T>, func : (arg: T) => R) : R[];
-  public static toArray<T, R>(list: T[] | Iterable<T>, preFilter : (arg: T) => boolean, func : (arg: T) => R) : R[];
+  public static toArray<T, R>(list: T[] | Iterable<T>, func : (arg: T) => R) : R[] | null;
+  public static toArray<T, R>(list: T[] | Iterable<T>, preFilter : (arg: T) => boolean, func : (arg: T) => R) : R[] | null;
   public static toArray<T, R>(list: T[] | Iterable<T>, a : ((arg: T) => boolean) | ((arg: T) => R), b? : (arg: T) => R) : R[] | null {
 
     const preFilter : ((arg: T) => boolean) | unknown = nsc(b) ? a : null;
