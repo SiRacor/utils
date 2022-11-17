@@ -5,7 +5,7 @@ import { Assert } from './assert';
 const { eqs, eq, neq } = Equality;
 const { nsc, nsce, emp, nvl, nvle, nvls, rsl, wth, iterateFunction, iteratePredicate } = NullSafe;
 const { getMatcher, getBool, assertTrue, assertFalse, assertEq, assertNeq } = Assert;
-const { count, filter, anyMatch, findFirst, tryGet, forEach, toSet, toArray, toMap, toEntry, isIterable} = Stream;
+const { count, filter, anyMatch, findFirst, tryGet, forEach, toSet, toArray, toMap, toEntry, isIterable, fmt, fmte, fmtj, join } = Stream;
 
 
 describe('Equality', () => {
@@ -445,6 +445,7 @@ describe('Stream', () => {
     assertEq(tryGet(['a', 'b', 'c'], 1), 'b');
     assertEq(tryGet(['a', 'b', 'c'], 3), null);
     assertEq(tryGet(new Set(['a', 'b', 'c']), 2), 'c');
+    assertEq(tryGet(new Map([['1', 'a'], ['2', 'b'], ['3', 'c']]), '2'), 'b');
   });
 
   it('assertCount', () => {
@@ -479,9 +480,9 @@ describe('Stream', () => {
 
   it('toArray', () => {
 
-    const a : string[] = toArray(['a', 'b', 'c'], (s) => s > 'a', (s) => s);
+    const a : string[] | null = toArray(['a', 'b', 'c'], (s) => s > 'a', (s) => s);
 
-    assertEq(a.length, 2);
+    assertEq(a?.length, 2);
   });
 
   it('toSet', () => {
@@ -500,13 +501,13 @@ describe('Stream', () => {
 
   it('toArray', () => {
 
-    let a : string[] = toArray(new Set(['a', 'b', 'c']), (s) => s);
+    let a : string[] | null = toArray(new Set(['a', 'b', 'c']), (s) => s);
     const b : string[] = ['a', 'b', 'c'];
 
-    assertEq(a.length, b.length);
+    assertEq(a?.length, b.length);
 
     a = toArray(['a', 'b', 'c'], (s) => neq(s, 'b'), (s) => s);
-    assertNeq(a.length, b.length);
+    assertNeq(a?.length, b.length);
 
     a = toArray(['a', 'b', 'c'], <any> null);
     assertEq(a, null);
@@ -551,5 +552,21 @@ describe('Stream', () => {
     assertTrue(eq(toEntry('a', 'b'), { key: 'a', value: 'b'}));
     assertFalse(eq(toEntry('a', 'b'), { key: 'a', value: 'c'}));
 
+  });
+
+  it('fmt', () => {
+
+    assertEq(fmt('{0}, {1} - {0}', 'a', 'b'), 'a, b - a');
+    assertEq(fmt('{a}, {b} - {a}', [toEntry('a', '1'), toEntry('b', '2')]), '1, 2 - 1');
+
+    const a = fmte([{ a: '5', b: '6' }, { a: '7', b: '8' }],'{0}, {1} - {0}', (x) => [x.a, x.b]);
+    assertEq(nvl(a)[0], '5, 6 - 5');
+    assertEq(nvl(a)[1], '7, 8 - 7');
+
+    const b = fmtj([{ a: '5', b: '6' }, { a: '7', b: '8' }], '{0}, {1} - {0}', '\n', (x) => [x.a, x.b]);
+    assertEq(nvl(b), '5, 6 - 5\n7, 8 - 7');
+
+    const c = join(['A', 'B', 'C'], ';', '(', ')');
+    assertEq(nvl(c), '(A;B;C)');
   });
 });

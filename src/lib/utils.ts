@@ -215,16 +215,29 @@ export class Stream {
 
   public static tryGet<T>(list: T[] | Iterable<T>) : T | null;
   public static tryGet<T>(list: T[] | Iterable<T>, index?: number) : T | null;
-  public static tryGet<T>(list: T[] | Iterable<T>, index?: number) : T | null {
+  public static tryGet<K, T>(map: Map<K, T>, key: K) : T | null;
+  public static tryGet<K, T>(list: T[] | Iterable<T> | Map<K, T>, index?: number | K) : T | null {
 
-    if (!nsce(list) || (index && index < 0)) {
+    if (!nsce(list)) {
       return null;
     }
 
-    index = index && index >= 0 ? index : 0;
-    const arr = Array.isArray(list) ? list : Array.from(list);
+    index = nvl(index, 0);
+    let ret: T | null = null;
 
-    return arr.length > index ? arr[index] : null;
+    if (list instanceof Map) {
+      ret = nvl(list.get(<K> index));
+    } else {
+
+      const arr: T[] = <T[]> (isIterable(list) ? Array.from(<Iterable<T>> list) : list);
+
+      if (typeof index === 'number' && index >= 0 && index < arr.length) {
+        ret = arr[index];
+      }
+
+    }
+
+    return ret;
   }
 
   public static count<T>(list: T[] | Iterable<T>) : number;
@@ -338,6 +351,62 @@ export class Stream {
 
   public static isIterable(obj : unknown) {
     return nsc(obj) && typeof (<Iterable<never>>obj)[Symbol.iterator] === 'function';
+  }
+
+  public static fmte<T>(list: T[] | Iterable<T>, pattern: string, func: (arg: T) => string[]): string[] | null {
+    return Stream.toArray(list, (t) => Stream.fmt(pattern, func(t)));
+  }
+
+  public static fmt(pattern: string, val1: string | string[], ...vals: string[]): string
+  public static fmt(pattern: string, val1: Entry<string, string> | Entry<string, string>[], ...vals: Entry<string, string>[]): string
+  public static fmt(pattern: string, val1: string | Entry<string, string> | (string | Entry<string, string>)[],  ...vals: (string | Entry<string, string>)[]): string {
+
+    let i = 0;
+    let result = '';
+
+    vals = nvl(vals, []);
+
+    if (Array.isArray(val1)) {
+      Stream.forEach(val1, (v) => vals.push(v));
+    } else {
+      vals.splice(0, 0, val1);
+    }
+
+    const args: Map<String, string> = Stream.toMap(vals,
+      // eslint-disable-next-line quotes
+      (val) => typeof val === 'string' ? Stream.toEntry('' + (i++) , val) : val
+    );
+
+    i = 0;
+
+    Stream.forEach(pattern.split(/[{w*}]/), (frag) => {
+      if ((i++) % 2 == 0) {
+        result = result.concat(frag);
+      } else {
+        result = result.concat(nvl(Stream.tryGet(args, frag), ''));
+      }
+    });
+    return result;
+  }
+
+  public static fmtj<T>(list: T[] | Iterable<T>, pattern: string, delimiter: string, func: (arg: T) => string[], prefix?: string, suffix?: string): string {
+    return Stream.join(nvl(Stream.toArray(list, (t) => Stream.fmt(pattern, func(t))), []), delimiter, prefix, suffix);
+  }
+
+  public static join(list: string[] | Iterable<string>, delimiter?: string, prefix?: string, suffix?: string): string {
+
+    let result = nvl(prefix, '');
+
+    Stream.forEach(list, (s) => {
+
+      if (!eq(result, nvl(prefix, ''))) {
+        result = result.concat(nvl(delimiter, ''));
+      }
+
+      result = result.concat(nvl(s, ''));
+    });
+
+    return result.concat(nvl(suffix, ''));
   }
 }
 
