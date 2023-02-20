@@ -1,4 +1,4 @@
-import { NullSafe, Stream } from './utils';
+import { NullSafe } from './utils';
 /* eslint-disable @typescript-eslint/no-namespace */
 import { TypedInterface, Interface } from './typed.interface';
 import { Assert } from './assert';

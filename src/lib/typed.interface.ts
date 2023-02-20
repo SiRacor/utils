@@ -2,7 +2,7 @@
 import { NullSafe, Stream, Equality } from './utils';
 
 const { nsc, wth, nvl } = NullSafe;
-const { tryGet, findFirst, forEach, isIterable, toArray } = Stream;
+const { tryGet, findFirst, forEach } = Stream;
 const { eq } = Equality;
 
 
@@ -175,30 +175,6 @@ class GlobalType<T> {
       }
     }
     return value;
-  }
-
-  public static createFrom(input: Record<string, unknown>): unknown | null {
-
-    if (!input || !input['clasz']) {
-      return null;
-    }
-
-    const gtype = this.fromJSON(JSON.stringify(input['clasz']) + '');
-    const creator = wth(gtype, () => null, (gt) => TypedInterface.map.get(gt));
-    const instance = wth(creator, {}, (cr) => cr.apply(this) as Record<string, unknown>);
-
-    wth(instance, (inst) => forEach(Object.keys(inst), (key) => {
-      if (typeof input[key] == 'object') {
-        // eslint-disable-next-line @typescript-eslint/ban-types
-        inst[key] = this.createFrom(input[key] as Record<string, unknown>);
-      } else {
-        inst[key] = input[key];
-      }
-
-    }));
-
-    instance['clasz'] = gtype;
-    return instance;
   }
 }
 
