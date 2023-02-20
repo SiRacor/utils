@@ -5,6 +5,7 @@
   "types": "dist/public-api.d.ts",
   "scripts": {
     "ng": "ng",
+    "c": "tsc",
     "start": "ng serve",
     "build": "ng build --configuration development && tsc dist/index.d.ts",
     "watch": "ng build --watch --configuration development",

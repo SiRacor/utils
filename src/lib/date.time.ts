@@ -1,5 +1,7 @@
 import { NullSafe } from './utils';
-import { format, parse } from 'date-and-time';
+import pkg from 'date-and-time';
+const { format, parse } = pkg;
+
 
 const { nsce, nvl } = NullSafe;
 

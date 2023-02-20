@@ -124,8 +124,8 @@ export class NullSafe {
     return typeof a == 'function' ? a() : a;
   }
 
-  public static wth<T>(t : T | null, func : (t : T) => any) : boolean;
-  public static wth<T, R>(t : T | null | undefined, alt : R, func : (t : T) => any) : R;
+  public static wth<T>(t : T | null, func : (t : T) => void) : boolean;
+  public static wth<T, R>(t : T | null | undefined, alt : R, func : (t : T) => R) : R;
   public static wth<T, R>(t : T | null | undefined, a : (t : T) => R | R, b? : (t : T ) => R) : boolean | R {
 
     const alt : R | any = nsc(b) ? a : null;
